@@ -3,7 +3,7 @@ from .models import Author
 
 class AuthorAdmin(admin.ModelAdmin):
     
-    list_display = ('id', 'fqid', 'username', 'displayName', 'host', 'github', 'profileImage', 'page')
+    list_display = ('fqid', 'username', 'displayName', 'host', 'github', 'profileImage', 'page')
 
     
     search_fields = ('username', 'displayName')

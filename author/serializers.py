@@ -6,9 +6,14 @@ from rest_framework import serializers
 from urllib.parse import urlparse
 from .models import Author
 
+from rest_framework import serializers
+from urllib.parse import urlparse
+from .models import Author
+
 class AuthorSerializer(serializers.Serializer):
     type = serializers.CharField(max_length=10, default="author")
-    id = serializers.SerializerMethodField()  
+    #id accept id but show fqid when response
+    id = serializers.SerializerMethodField()
     host = serializers.URLField()
     displayName = serializers.CharField(max_length=100, allow_null=True, required=False)
     github = serializers.URLField(allow_null=True, required=False)
@@ -16,33 +21,12 @@ class AuthorSerializer(serializers.Serializer):
     page = serializers.URLField(allow_null=True, required=False)
 
     def get_id(self, obj):
-        
-        return obj.fqid  
+        #show fqid as id
+        return obj.fqid 
 
-    def validate_id(self, value):
-        
-        parsed_url = urlparse(value)
-        if not parsed_url.scheme or not parsed_url.netloc:
-            raise serializers.ValidationError("无效的 URL 格式")
-        
-        return value
-
-    def create(self, validated_data):
-        
-        validated_data['fqid'] = validated_data.pop('id')  
-        return Author.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
-        
-        
-        if 'id' in validated_data and validated_data['id'] != instance.fqid:
-            raise serializers.ValidationError("不能修改 id 字段。")
-
-        
-        if 'host' in validated_data and validated_data['host'] != instance.host:
-            raise serializers.ValidationError("不能修改 host 字段。")
-
-        
+        #update the author, except id and host
         instance.type = validated_data.get('type', instance.type)
         instance.displayName = validated_data.get('displayName', instance.displayName)
         instance.github = validated_data.get('github', instance.github)
@@ -51,6 +35,7 @@ class AuthorSerializer(serializers.Serializer):
         instance.save()
 
         return instance
+
     
 class FollowerSerializer(serializers.Serializer):
     type = serializers.CharField(default="author")
