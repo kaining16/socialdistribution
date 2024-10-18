@@ -5,6 +5,7 @@ from . import views
 app_name = 'author'
 
 urlpatterns = [
+    
     path('', views.get_authors, name='get_authors'),
     
     path('<int:pk>/', views.author_profile, name='author_profile'),

@@ -1,6 +1,4 @@
 from django.shortcuts import render
-
-# Create your views here.
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Author
@@ -9,27 +7,21 @@ from rest_framework import status
 
 @api_view(['GET'])
 def get_authors(request):
-    
-    
+    "get all authors"
     authors = Author.objects.all()
-    
-    
     serializer = AuthorSerializer(authors, many=True)
-    
-    
     return Response({
         "type": "authors",
         "authors": serializer.data
     })
 
-# GET and PUT for AUTHOR_SERIAL
 @api_view(['GET', 'PUT'])
 def author_profile(request, pk):
-    
+    "get, modify, create a specific author"
+    "local"
     try:
-        
         author = Author.objects.get(pk=pk)
-    except Author.DoesNotExist:
+    except Author.DoesNotExist:# if can't find author with this pk
         author = None  
 
     if request.method == 'GET':
