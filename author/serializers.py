@@ -8,23 +8,19 @@ from .models import Author
 
 class AuthorSerializer(serializers.Serializer):
     type = serializers.CharField(max_length=10, default="author")
-    id = serializers.SerializerMethodField()  # 使用 SerializerMethodField 来自定义 id 的输出
+    id = serializers.SerializerMethodField()  
     host = serializers.URLField()
-    displayName = serializers.CharField(max_length=100)
+    displayName = serializers.CharField(max_length=100, allow_null=True, required=False)
     github = serializers.URLField(allow_null=True, required=False)
     profileImage = serializers.URLField(allow_null=True, required=False)
     page = serializers.URLField(allow_null=True, required=False)
 
     def get_id(self, obj):
-        """
-        返回 fqid 作为 id 的值
-        """
-        return obj.fqid  # 返回数据库中存储的 fqid 值
+        
+        return obj.fqid  
 
     def validate_id(self, value):
-        """
-        验证 id 的 URL，确保其格式符合要求
-        """
+        
         parsed_url = urlparse(value)
         if not parsed_url.scheme or not parsed_url.netloc:
             raise serializers.ValidationError("无效的 URL 格式")
@@ -32,26 +28,21 @@ class AuthorSerializer(serializers.Serializer):
         return value
 
     def create(self, validated_data):
-        """
-        创建并返回一个新的 Author 实例，基于验证后的数据。
-        """
-        validated_data['fqid'] = validated_data.pop('id')  # 将请求中的 id 映射到 fqid
+        
+        validated_data['fqid'] = validated_data.pop('id')  
         return Author.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
-        """
-        更新并返回一个已存在的 Author 实例，基于验证后的数据。
-        如果尝试修改 id 或 host，则返回错误。
-        """
-        # 验证 id 是否一致
+        
+        
         if 'id' in validated_data and validated_data['id'] != instance.fqid:
             raise serializers.ValidationError("不能修改 id 字段。")
 
-        # 验证 host 是否一致
+        
         if 'host' in validated_data and validated_data['host'] != instance.host:
             raise serializers.ValidationError("不能修改 host 字段。")
 
-        # 更新其他可修改字段
+        
         instance.type = validated_data.get('type', instance.type)
         instance.displayName = validated_data.get('displayName', instance.displayName)
         instance.github = validated_data.get('github', instance.github)
@@ -63,9 +54,60 @@ class AuthorSerializer(serializers.Serializer):
     
 class FollowerSerializer(serializers.Serializer):
     type = serializers.CharField(default="author")
-    id = serializers.URLField()  # 使用 fqid
+    id = serializers.URLField()  
     host = serializers.URLField()
     displayName = serializers.CharField(max_length=100)
     github = serializers.URLField(allow_null=True, required=False)
     profileImage = serializers.URLField(allow_null=True, required=False)
     page = serializers.URLField(allow_null=True, required=False)
+
+
+from rest_framework import serializers
+from .models import FollowRequest, Author
+from .serializers import AuthorSerializer
+
+class FollowRequestSerializer(serializers.Serializer):
+    type = serializers.CharField(max_length=10, default="follow")
+    summary = serializers.CharField(max_length=255)
+
+    
+    actor = AuthorSerializer()
+    object = AuthorSerializer()
+
+    def create(self, validated_data):
+        
+        actor_data = validated_data.pop('actor')
+        object_data = validated_data.pop('object')
+
+        
+        actor, _ = Author.objects.get_or_create(
+            fqid=actor_data['id'],
+            defaults={
+                'displayName': actor_data['displayName'],
+                'host': actor_data['host'],
+                'github': actor_data.get('github'),
+                'profileImage': actor_data.get('profileImage'),
+                'page': actor_data.get('page')
+            }
+        )
+
+       
+        target, _ = Author.objects.get_or_create(
+            fqid=object_data['id'],
+            defaults={
+                'displayName': object_data['displayName'],
+                'host': object_data['host'],
+                'github': object_data.get('github'),
+                'profileImage': object_data.get('profileImage'),
+                'page': object_data.get('page')
+            }
+        )
+
+        
+        follow_request = FollowRequest.objects.create(
+            request_type=validated_data.get('type', 'follow'),
+            summary=validated_data['summary'],
+            actor=actor,
+            object=target,
+        )
+        return follow_request

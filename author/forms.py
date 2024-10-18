@@ -8,17 +8,17 @@ from .models import Author
 
 class CustomAuthorCreationForm(UserCreationForm):
     class Meta:
-        model = Author  # 使用自定义的 Author 模型
-        fields = ("username", "password1", "password2")  # 只保留用户名和密码字段
+        model = Author  
+        fields = ("username", "password1", "password2") 
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request', None)  # 从 kwargs 中获取 request 对象
+        self.request = kwargs.pop('request', None) 
         super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        # 只保存用户名和密码
+        
         author = super().save(commit=False)
-        author.host = f"http://{self.request.get_host()}/api/"  # 设置 host 为当前主机
+        author.host = f"http://{self.request.get_host()}/api/"  
         if commit:
             author.save()
         return author

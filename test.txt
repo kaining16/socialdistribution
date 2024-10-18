@@ -1,0 +1,20 @@
+{
+    "type": "follow",
+    "summary": "Greg wants to follow Lara",
+    "actor": {
+            "id": "http://127.0.0.1:8000/api/authors/3",
+            "host": "http://127.0.0.1:8000/api/",
+            "displayName": "",
+            "github": null,
+            "profileImage": null,
+            "page": null
+        },
+    "object": {
+            "id": "http://127.0.0.1:8000/api/authors/4",
+            "host": "http://127.0.0.1:8000/api/",
+            "displayName": "",
+            "github": null,
+            "profileImage": null,
+            "page": null
+        }
+}
