@@ -45,3 +45,21 @@ class Author(AbstractUser):
     def __str__(self):
         return self.fqid
 
+    def add_follower(self, author):
+       if author != self:
+            self.followers.add(author)
+
+    def remove_follower(self, author):
+        self.followers.remove(author)
+
+    def is_friend(self, author):
+        return author in self.friends
+
+    def add_friend(self, author):
+        if author != self and author in self.followers and self in author.followers:
+            self.friends.add(author)
+            author.friends.add(self)
+
+    def remove_friend(self, author):
+        self.friends.remove(author)
+        author.friends.remove(self)
