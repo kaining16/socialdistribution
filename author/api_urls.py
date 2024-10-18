@@ -10,14 +10,8 @@ urlpatterns = [
     
     path('<str:author_serial>/', views.author_profile, name='author_profile'),
 
-    path('register/', views.register, name='register'),
+    path('<str:author_serial>/followers/', views.get_followers, name='get_followers'),
 
-    path('login/', views.login_view, name='login'),
+    path('<str:author_serial>/followers/<path:foreign_author_fqid>/', views.followers_api, name='followers_api'),
 
-
-
-
-    path('<str:author_serial>/followers/', views.followers_list, name='followers_list'),
-    path('<str:author_serial>/followers/<path:foreign_author_fqid>/', views.check_follower, name='check_follower'),
-    path('<str:author_serial>/follow_requests/', views.receive_follow_request, name='receive_follow_request'),
 ]

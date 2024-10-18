@@ -24,3 +24,7 @@
 python manage.py makemigrations
 python manage.py migrate
 python3 manage.py runserver
+http%3A//127.0.0.1%3A8000/api/authors/author_1
+http%3A//127.0.0.1%3A8000/api/authors/kaining
+http%3A//127.0.0.1%3A8000/api/authors/author2
+
